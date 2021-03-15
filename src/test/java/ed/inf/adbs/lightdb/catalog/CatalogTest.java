@@ -11,7 +11,7 @@ public class CatalogTest {
 		assertTrue(catalog.equals(catalog1));
 		
 		for(Object tableName: catalog.tables.keySet()) {
-			Table table = (Table) catalog.tables.get(tableName);
+			TableInfo table = (TableInfo) catalog.tables.get(tableName);
 			System.out.println(table.getTablePath());
 			System.out.println(table.getColumns());
 		}

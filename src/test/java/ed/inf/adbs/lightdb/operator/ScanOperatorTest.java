@@ -8,6 +8,9 @@ import ed.inf.adbs.lightdb.tuple.Tuple;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ScanOperatorTest {
 	@Test
 	public void testNext() {
@@ -17,17 +20,13 @@ public class ScanOperatorTest {
 		Tuple tuple;
 		tuple = scan.getNextTuple();
 		
-		Integer[] values = new Integer[3];
-		values[0] = 101;
-		values[1] = 2;
-		values[2] = 3;
+		List<Integer> values = new ArrayList();
+		values.add(101);
+		values.add(2);
+		values.add(3);
 		Tuple truthTuple = new Tuple(values);
 		
 		assertTrue(truthTuple.toString().equals(tuple.toString()));
-		/**
-		while ((tuple = scan.getNextTuple()) != null) {
-			System.out.println(tuple.toString());
-		}**/
 	}
 	
 	@Test

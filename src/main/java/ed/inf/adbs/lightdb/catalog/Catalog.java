@@ -20,7 +20,7 @@ public class Catalog {
 	// ensure every thread read the instance from the main memory 
 	private volatile static Catalog instance = null;
 	private String dbPath;
-	public Map tables;
+	public Map<String, TableInfo> tables;
 	
 	/**
 	 * Private constructor 
@@ -39,6 +39,24 @@ public class Catalog {
 		}
 	}
 	
+	public int getIndex(String tableName, String columnName) {
+		int index = tables.get(tableName).getColumns().indexOf(columnName);
+		return index;
+	}
+	
+	public TableInfo getTable(String tableName) {
+		TableInfo table = tables.get(tableName);
+		return table;
+	}
+	
+	
+	public synchronized void dropInMemoryTable(String tableName) {
+		if(!tables.containsKey(tableName)) {return;}
+		
+		if(tables.get(tableName).getTablePath() == "inMemory") {
+		    tables.remove(tableName);
+		}
+	}
 	
 	
 	/**
@@ -66,10 +84,10 @@ public class Catalog {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    private Map readTables() throws FileNotFoundException, IOException {
+    private Map<String, TableInfo> readTables() throws FileNotFoundException, IOException {
     	String schemaPath = this.dbPath + "/schema.txt";  // schema path
     	String dataDir = this.dbPath + "/data/";  // datafile dir
-    	Map<String, Table> tables = new HashMap();  // return map
+    	Map<String, TableInfo> tables = new HashMap();  // return map
     	
     	// read schema
     	FileReader f = new FileReader(schemaPath);
@@ -78,7 +96,7 @@ public class Catalog {
     	String str = null;
     	while((str = schema.readLine())!=null) {
     		
-    		Table table = new Table();
+    		TableInfo table = new TableInfo();
     		
     		String[] info = str.split(" ");
     		String tableName = info[0];
@@ -87,7 +105,7 @@ public class Catalog {
     		
     		List<String> columns = new ArrayList<String>();
     		for(int i = 1; i < info.length; i++) {
-    			columns.add(info[i]);
+    			columns.add(tableName + "." + info[i]);
     		}
     		
     		table.setColumns(columns);
