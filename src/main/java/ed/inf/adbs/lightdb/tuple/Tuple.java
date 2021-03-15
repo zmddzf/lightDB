@@ -10,12 +10,8 @@ public class Tuple<T> {
      * Constructor
      * @param values: N-tuple values
      */
-    public Tuple(T[] args) {
-    	List<T> list = new ArrayList<T>();
-    	for(T item:args) {
-    		list.add(item);
-    	}
-    	this.values = list;
+    public Tuple(List<T> args) {
+    	this.values = args;
     }
     
     /**
@@ -30,5 +26,31 @@ public class Tuple<T> {
     	}
     	str = str.substring(0, str.length()-1);
     	return str;
+    }
+    
+    public List toList() {
+    	List values_list = new ArrayList();
+    	for(T item: values) {
+    		values_list.add(item);
+    	}
+		return values_list;
+    	
+    }
+    
+    public T get(int index) {
+    	T v = values.get(index);
+		return v;
+    }
+    
+    public Tuple<T> concate(Tuple<T> tuple) {
+    	Tuple<T> newTuple;
+    	List<T> list = this.toList();
+    	
+    	list.addAll(tuple.toList());
+    	
+    	newTuple = new Tuple<T>(list);
+    	
+		return newTuple;
+    	
     }
 }

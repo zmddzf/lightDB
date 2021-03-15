@@ -9,9 +9,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import ed.inf.adbs.lightdb.catalog.Catalog;
-import ed.inf.adbs.lightdb.catalog.Table;
+import ed.inf.adbs.lightdb.catalog.TableInfo;
 import ed.inf.adbs.lightdb.operator.Operator;
 import ed.inf.adbs.lightdb.tuple.Tuple;
 
@@ -20,8 +22,9 @@ import ed.inf.adbs.lightdb.tuple.Tuple;
  *
  */
 public class ScanOperator extends Operator {
-	private Table table;
+	private TableInfo table;
 	private BufferedReader data;
+	private String tableName;
 	
 	/**
 	 * Constructor
@@ -29,8 +32,11 @@ public class ScanOperator extends Operator {
 	 * @param tableName the table that applies scan
 	 */
 	public ScanOperator(Catalog catalog, String tableName) {
-		this.table = (Table) catalog.tables.get(tableName);
+		this.table = (TableInfo) catalog.tables.get(tableName);
+		this.setTableName(tableName);
 	}
+	
+	
 	
 	/**
 	 * Open the file and set the state true
@@ -80,9 +86,9 @@ public class ScanOperator extends Operator {
 			String line = this.data.readLine();
 			if (line != null) {
 				String[] str_list = line.split(",");
-				Integer[] values = new Integer[str_list.length];
+				List<Integer> values = new ArrayList();
 				for (int i = 0; i < str_list.length; i++) {
-					values[i] = Integer.valueOf(str_list[i]);
+					values.add(Integer.valueOf(str_list[i]));
 				}
 				Tuple tuple = new Tuple(values);
 				return tuple;
@@ -94,6 +100,17 @@ public class ScanOperator extends Operator {
 		}
 		return null;
 		
+	}
+
+
+
+	public String getTableName() {
+		return tableName;
+	}
+
+
+	public void setTableName(String tableName) {
+		this.tableName = tableName;
 	}
 	
 }
