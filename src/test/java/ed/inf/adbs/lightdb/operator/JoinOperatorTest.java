@@ -41,14 +41,11 @@ public class JoinOperatorTest {
 			
 			ScanOperator scan1 = new ScanOperator(catalog, "Reserves");
 			ScanOperator scan2 = new ScanOperator(catalog, "Sailors");
-			
-			System.out.println(hashMap.keySet().toArray()[0]);
-			
+						
 			JoinOperator join = new JoinOperator(scan1, scan2, 
 					catalog, whereExp);
 						
 			ProjectOperator project = new ProjectOperator(join, catalog, selectItems);
-			System.out.println(project.getTableName());
 			project.reset();
 						
 			project.dump(null);;

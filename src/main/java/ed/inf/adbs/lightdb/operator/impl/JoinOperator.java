@@ -54,8 +54,6 @@ public class JoinOperator extends Operator {
 		columns.addAll(columns2);
 
 		tableInfo.setColumns(columns);
-		
-		System.out.println(columns);
 		tableInfo.setTablePath("//:inMemory");
 		
 		catalog.tables.put(tableName, tableInfo);
