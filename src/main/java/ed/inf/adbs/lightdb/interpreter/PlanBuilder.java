@@ -33,20 +33,19 @@ public class PlanBuilder {
 	
 	public Operator buildTree(String sql) throws JSQLParserException {
 		PlainSelect plain = parseSql(sql);
-		OperatorFactory factory = new OperatorFactory();
 		
 		// create scan operator
 		List<String> tableOrder = findTableOrder(plain);
 		List<Operator> scanList = new ArrayList<Operator>();
 		
 		for(String tableName: tableOrder) {
-			Operator scan = factory.getOperator(catalog, tableName);
+			Operator scan = OperatorFactory.getOperator(catalog, tableName);
 			scanList.add(scan);
 		}
 		
 		// find where clause
 		HashMap<String, Expression> expMap = findWhereClause(plain, tableOrder);		
-		
+		//System.out.println(expMap);
 		// create predicate filters
 		List<Operator> filterList;
 		if(expMap == null) {
@@ -64,6 +63,7 @@ public class PlanBuilder {
 					for(String tableName: expMap.keySet()) {
 						expMap.put(tableName, expMap.get("numeric"));
 					}
+					//System.out.println(expMap);
 				}
 			}
 			
@@ -72,7 +72,7 @@ public class PlanBuilder {
 			for(Operator scan: scanList) {
 				String tableName = scan.getTableName();
 				if(expMap.containsKey(tableName)) {
-					Operator filter = factory.getOperator(scan, catalog, expMap.get(tableName));  
+					Operator filter = OperatorFactory.getOperator(scan, catalog, expMap.get(tableName));  
 					filterList.add(filter);
 				} else {
 					filterList.add(scan);
@@ -88,18 +88,27 @@ public class PlanBuilder {
 			// if only involves 1 table
 			// the operator is the only element of filterList
 			operator = filterList.get(0);
-		}
-		
-		if(filterList.size() > 1) {
-			
-			for(String tableName: tableOrder) {
-				
+		} else {
+			operator = filterList.get(0);
+			for(int i=1; i < filterList.size(); i++) {
+				String tableName = operator.getTableName() + " " + filterList.get(i).getTableName();
+				System.out.println(tableName);
+				Expression exp = expMap.get(tableName);
+				operator = OperatorFactory.getOperator(operator, filterList.get(i), catalog, exp);
 			}
 		}
 		
 		
+		// create projection
+		List<SelectItem> selectItems = findSelectItems(plain);
+		if(selectItems == null) {
+			return operator;
+		}
 		
-		return null;
+		
+		Operator projectOperator = OperatorFactory.getOperator(operator, catalog, selectItems);
+		
+		return projectOperator;
 	}
 	
 	

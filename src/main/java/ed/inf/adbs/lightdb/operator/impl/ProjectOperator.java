@@ -93,20 +93,4 @@ public class ProjectOperator extends Operator {
 	public void setTableName(String tableName) {
 		this.tableName = tableName;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 }
