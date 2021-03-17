@@ -53,7 +53,7 @@ public class Catalog {
 	public synchronized void dropInMemoryTable(String tableName) {
 		if(!tables.containsKey(tableName)) {return;}
 		
-		if(tables.get(tableName).getTablePath() == "inMemory") {
+		if(tables.get(tableName).getTablePath() == "//:inMemory") {
 		    tables.remove(tableName);
 		}
 	}

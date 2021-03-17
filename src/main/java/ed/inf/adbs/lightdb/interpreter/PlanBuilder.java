@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import ed.inf.adbs.lightdb.catalog.Catalog;
+import ed.inf.adbs.lightdb.catalog.TableInfo;
 import ed.inf.adbs.lightdb.operator.Operator;
 import ed.inf.adbs.lightdb.operator.OperatorFactory;
 import ed.inf.adbs.lightdb.operator.impl.ScanOperator;
@@ -30,6 +31,43 @@ public class PlanBuilder {
 		this.catalog = Catalog.getInstance(dbPath);
 	}
 	
+	public List<String> handleAlias(List<String> tableOrder) {
+		List<String> newTableOrder = new ArrayList<String>();
+		
+		for(String tableName: tableOrder) {
+			if(tableName.contains(" ")) {
+				String[] tableAlias = tableName.split(" ");
+				
+				// get the original table info
+				TableInfo originalTable = catalog.getTable(tableAlias[0]);
+				
+				// new a aliasTable info
+				TableInfo aliasTable = new TableInfo();
+				// set tableName as the alias
+				aliasTable.setTableName(tableAlias[1]);
+				// change the table.column to alias.column
+				List<String> columns = new ArrayList<String>();
+				for(String col: originalTable.getColumns()) {
+					columns.add(tableAlias[1] + "." + col.split("\\.")[1]);
+				}
+				aliasTable.setColumns(columns);
+				// set table path
+				aliasTable.setTablePath(originalTable.getTablePath());
+				
+				aliasTable.setInMemory(true);
+				
+				catalog.tables.put(tableAlias[1], aliasTable);
+				
+				newTableOrder.add(tableAlias[1]);
+				
+			} else {
+				newTableOrder.add(tableName);
+			}
+		}
+		
+		return newTableOrder;
+	}
+	
 	
 	public Operator buildTree(String sql) throws JSQLParserException {
 		PlainSelect plain = parseSql(sql);
@@ -38,6 +76,10 @@ public class PlanBuilder {
 		List<String> tableOrder = findTableOrder(plain);
 		List<Operator> scanList = new ArrayList<Operator>();
 		
+		tableOrder = handleAlias(tableOrder); // handle alias
+		System.out.println(tableOrder);
+		System.out.println(catalog.tables);
+		
 		for(String tableName: tableOrder) {
 			Operator scan = OperatorFactory.getOperator(catalog, tableName);
 			scanList.add(scan);
@@ -45,7 +87,7 @@ public class PlanBuilder {
 		
 		// find where clause
 		HashMap<String, Expression> expMap = findWhereClause(plain, tableOrder);		
-		//System.out.println(expMap);
+
 		// create predicate filters
 		List<Operator> filterList;
 		if(expMap == null) {
@@ -92,9 +134,16 @@ public class PlanBuilder {
 			operator = filterList.get(0);
 			for(int i=1; i < filterList.size(); i++) {
 				String tableName = operator.getTableName() + " " + filterList.get(i).getTableName();
-				System.out.println(tableName);
-				Expression exp = expMap.get(tableName);
+				
+				Expression exp;
+				if(expMap == null) {
+					exp = null;
+				} else {
+					exp = expMap.get(tableName);
+				}
+				
 				operator = OperatorFactory.getOperator(operator, filterList.get(i), catalog, exp);
+
 			}
 		}
 		
@@ -104,7 +153,6 @@ public class PlanBuilder {
 		if(selectItems == null) {
 			return operator;
 		}
-		
 		
 		Operator projectOperator = OperatorFactory.getOperator(operator, catalog, selectItems);
 		

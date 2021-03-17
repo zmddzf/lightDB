@@ -14,6 +14,7 @@ import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
@@ -56,12 +57,17 @@ public class LightDB {
 	public static void parsingExample(String filename) {
 		try {
 			//Statement statement = CCJSqlParserUtil.parse(new FileReader(filename));
-            Statement statement = CCJSqlParserUtil.parse("SELECT * FROM Boats, T WHERE T.D=Boats.E and T.A=3");
+            Statement statement = CCJSqlParserUtil.parse(
+            		"SELECT * FROM Boats B, T t WHERE T.D=Boats.E and T.A=3 order by T.A");
 			if (statement != null) {
 				System.out.println("Read statement: " + statement);
 				Select select = (Select) statement;
 				PlainSelect plain = (PlainSelect) select.getSelectBody();
 				System.out.println(plain.getFromItem());
+				
+				List<OrderByElement> orderByElements = plain.getOrderByElements();
+				System.out.println(orderByElements.get(0).toString());
+				
 								
 				List<Join> joins = plain.getJoins();
 				System.out.println(plain.getFromItem().getClass());

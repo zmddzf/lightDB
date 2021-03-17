@@ -15,7 +15,7 @@ import ed.inf.adbs.lightdb.tuple.Tuple;
  */
 public abstract class Operator {
 	protected boolean state = false;
-	private String tableName;
+	protected String tableName;
 	
 	public Operator() {}
 	
@@ -30,13 +30,9 @@ public abstract class Operator {
 	 */
 	public abstract void reset();
 	
-	public void open() throws FileNotFoundException, IOException {
-		this.state = true;
-	}
+	public abstract void open() throws FileNotFoundException, IOException;
 	
-	public void close() throws IOException {
-		this.state = false;
-	}
+	public abstract void close() throws IOException;
 	
 	public void dump(String outputPath) {
 		this.reset();
