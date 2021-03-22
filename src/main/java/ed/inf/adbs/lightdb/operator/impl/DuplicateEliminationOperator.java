@@ -3,30 +3,26 @@ package ed.inf.adbs.lightdb.operator.impl;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import ed.inf.adbs.lightdb.catalog.Catalog;
 import ed.inf.adbs.lightdb.operator.Operator;
-import ed.inf.adbs.lightdb.operator.utils.SelectionVisitor;
 import ed.inf.adbs.lightdb.tuple.Tuple;
-import ed.inf.adbs.lightdb.tuple.TupleComparator;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
-public class SortOperator extends Operator {
+public class DuplicateEliminationOperator extends Operator {
+	
+	private HashSet<List> cacheTupleSet = new HashSet<List>();
+	private List<Integer> prevKey = new ArrayList<Integer>();
 	
 	private Operator child;
 	private List<Integer> indexList = new ArrayList<Integer>();
-	private List<Tuple<Integer>> tupleList;
-	private Catalog catalog;
-	private int pointer;
 	
-	public SortOperator(Operator child, Catalog catalog, List<OrderByElement> orderByElements) {
+	public DuplicateEliminationOperator(Operator child, Catalog catalog, 
+			List<OrderByElement> orderByElements) {
 		this.child = child;
 		this.tableName = child.getTableName();
-		this.catalog = catalog;
-
-		
 		if(orderByElements == null) {
 			int length = catalog.getTable(tableName).getColumns().size();
 			for(int i=0; i< length; i++) {
@@ -39,15 +35,32 @@ public class SortOperator extends Operator {
 	    }
 	}
 	
-
+	
 	@Override
 	public Tuple getNextTuple() {
 		// TODO Auto-generated method stub
-		if(pointer < tupleList.size()) {
-			Tuple<Integer> tuple =  tupleList.get(pointer);
-			pointer += 1;
-			return tuple;
+		Tuple tuple;
+		
+		while((tuple = child.getNextTuple()) != null) {
+			List<Integer> orderKey = new ArrayList<Integer>();
+			for(int index: indexList) {
+				orderKey.add((Integer) tuple.get(index));
+			}
+			
+			if(!prevKey.equals(orderKey)) {
+				prevKey.clear();
+				prevKey.addAll(orderKey);
+				cacheTupleSet.clear();
+				cacheTupleSet.add(tuple.toList());
+				return tuple;
+			} else if(!cacheTupleSet.contains(tuple.toList())) {				
+				cacheTupleSet.add(tuple.toList());
+				return tuple;
+			}
+			
+			
 		}
+		
 		return null;
 	}
 
@@ -68,15 +81,6 @@ public class SortOperator extends Operator {
 		// TODO Auto-generated method stub
 		child.open();
 		state = true;
-		tupleList = new ArrayList<Tuple<Integer>>();
-		
-		Tuple<Integer> tuple;
-		while((tuple = child.getNextTuple())!=null) {			
-			tupleList.add(tuple);
-		}
-		
-		
-		Collections.sort(tupleList, new TupleComparator(indexList));
 	}
 
 	@Override
@@ -86,8 +90,6 @@ public class SortOperator extends Operator {
 		    child.close();
 		}
 		this.state = false;		
-		pointer = 0;
-		//tupleList = new ArrayList<Tuple<Integer>>();
 	}
 
 }

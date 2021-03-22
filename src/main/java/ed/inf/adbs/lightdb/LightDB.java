@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
@@ -69,6 +70,9 @@ public class LightDB {
 				PlainSelect plain = (PlainSelect) select.getSelectBody();
 				System.out.println(plain.getFromItem());
 				
+				System.out.println("sssss:"+plain.getOrderByElements());
+				
+				
 				List<OrderByElement> orderByElements = plain.getOrderByElements();
 				System.out.println(orderByElements.get(0).toString());
 				
@@ -125,6 +129,11 @@ public class LightDB {
 	    	    
 	    	    List<String> list = new ArrayList<String>();
 	    	    
+	    	    ArrayList<Integer> listA = new ArrayList(Arrays.asList(1,2,3,4));
+	    	    ArrayList<Integer> listB = new ArrayList(Arrays.asList(1,2,3,4));
+	    	    System.out.println(listA.equals(listB));
+	    	    
+	    	    System.out.println(plain.getDistinct());
 	    	    
 			}
 		} catch (Exception e) {

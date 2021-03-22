@@ -17,10 +17,10 @@ public class PlanBuilderTest {
 			+ "and 1!=2";
 	
 	String sql2 = "select * from Reserves R, Sailors S";
-	String sql3 = "select S.A from Reserves R, Sailors S, Boats B where S.A < R.G "
-			+ "and B.D < S.B";
+	String sql3 = "select S.A, R.G from Reserves R, Sailors S, Boats B where S.A < R.G "
+			+ "and B.D < S.B order by S.A, R.G";
 	
-	String sql4 = "select S1.A, S2.A, S2.B from Sailors S1, Sailors S2 where S1.A < S2.A";
+	String sql4 = "select distinct S1.A, S2.A, S2.B from Sailors S1, Sailors S2 where S1.A < S2.A";
 	
 	PlanBuilder planBuilder = new PlanBuilder("./samples/db");
 	
@@ -41,7 +41,7 @@ public class PlanBuilderTest {
 			Operator operator3 = planBuilder.buildTree(sql3);
 			operator3.reset();
 			operator3.dump(null);
-			
+						
 			System.out.println(">>>>>>>sql4>>>>>>>");
 			Operator operator4 = planBuilder.buildTree(sql4);
 			operator4.reset();

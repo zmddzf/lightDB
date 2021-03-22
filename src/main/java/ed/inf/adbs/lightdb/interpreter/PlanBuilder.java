@@ -8,7 +8,9 @@ import ed.inf.adbs.lightdb.catalog.Catalog;
 import ed.inf.adbs.lightdb.catalog.TableInfo;
 import ed.inf.adbs.lightdb.operator.Operator;
 import ed.inf.adbs.lightdb.operator.OperatorFactory;
+import ed.inf.adbs.lightdb.operator.impl.DuplicateEliminationOperator;
 import ed.inf.adbs.lightdb.operator.impl.ScanOperator;
+import ed.inf.adbs.lightdb.operator.impl.SortOperator;
 import ed.inf.adbs.lightdb.operator.utils.ExpressionVisitor;
 import ed.inf.adbs.lightdb.operator.utils.SelectionVisitor;
 import ed.inf.adbs.lightdb.tuple.Tuple;
@@ -20,6 +22,7 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
@@ -72,22 +75,65 @@ public class PlanBuilder {
 	public Operator buildTree(String sql) throws JSQLParserException {
 		PlainSelect plain = parseSql(sql);
 		
-		// create scan operator
+		
 		List<String> tableOrder = findTableOrder(plain);
-		List<Operator> scanList = new ArrayList<Operator>();
-		
 		tableOrder = handleAlias(tableOrder); // handle alias
-		System.out.println(tableOrder);
-		System.out.println(catalog.tables);
+
+		List<Operator> scanList = createScanList(tableOrder);
 		
+		// find where clause
+		HashMap<String, Expression> expMap = findWhereClause(plain, tableOrder);		
+		List<Operator> filterList = createFilterList(expMap, scanList);
+		
+		// create join operator
+		Operator operator = createJoinOperator(expMap, filterList);  // the operator that after join
+		
+		// create projection
+		List<SelectItem> selectItems = findSelectItems(plain);
+		Operator projectOperator = createProjectOperator(selectItems, operator);
+		
+		// create sortOperator
+		List<OrderByElement> orderByElements = plain.getOrderByElements();
+		boolean flag = (orderByElements == null)?false:true;
+		Operator sortOperator = createSortOperator(orderByElements, projectOperator);
+		
+		// create distinct
+		if(plain.getDistinct() == null) {
+			return sortOperator;
+		}
+		
+		if(flag) {
+			Operator distinctOperator = new DuplicateEliminationOperator(sortOperator, 
+					catalog, orderByElements);
+			return distinctOperator;
+		}
+		
+		List<OrderByElement> newOrderByList = new ArrayList<OrderByElement>();
+		Operator newSortOperator = new SortOperator(sortOperator, catalog, null);
+		Operator distinctOperator = new DuplicateEliminationOperator(newSortOperator, 
+				catalog, orderByElements);
+		
+		
+		return distinctOperator;
+	}
+	
+	
+	
+	public List<Operator> createScanList(List<String> tableOrder) {
+		// create scan operator
+		List<Operator> scanList = new ArrayList<Operator>();
 		for(String tableName: tableOrder) {
 			Operator scan = OperatorFactory.getOperator(catalog, tableName);
 			scanList.add(scan);
 		}
 		
-		// find where clause
-		HashMap<String, Expression> expMap = findWhereClause(plain, tableOrder);		
-
+		return scanList;
+	}
+	
+	
+	public List<Operator> createFilterList(HashMap<String, Expression> expMap,
+			List<Operator> scanList) {
+		
 		// create predicate filters
 		List<Operator> filterList;
 		if(expMap == null) {
@@ -102,10 +148,10 @@ public class PlanBuilder {
 				boolean flag = selectionVisitor.check(new Tuple(new ArrayList()));
 				if(flag == false) {
 					// if false, all expression is useless
+					// otherwise, the numeric exp is useless
 					for(String tableName: expMap.keySet()) {
 						expMap.put(tableName, expMap.get("numeric"));
 					}
-					//System.out.println(expMap);
 				}
 			}
 			
@@ -123,7 +169,13 @@ public class PlanBuilder {
 		}
 		
 		
-		// create join operator
+		return filterList;
+		
+	}
+	
+	
+	public Operator createJoinOperator(HashMap<String, Expression> expMap, 
+			List<Operator> filterList) {
 		Operator operator;  // the operator that after join
 		
 		if(filterList.size() == 1) {
@@ -146,18 +198,43 @@ public class PlanBuilder {
 
 			}
 		}
+		return operator;
 		
-		
-		// create projection
-		List<SelectItem> selectItems = findSelectItems(plain);
+	}
+	
+	
+	public Operator createProjectOperator(List<SelectItem> selectItems, Operator operator) {
 		if(selectItems == null) {
 			return operator;
 		}
-		
 		Operator projectOperator = OperatorFactory.getOperator(operator, catalog, selectItems);
-		
-		return projectOperator;
+		return projectOperator;	
 	}
+	
+	
+	
+	public Operator createSortOperator(List<OrderByElement> orderByElements, 
+			Operator operator) {
+		if(orderByElements == null) {
+			return operator;
+		}
+		
+		Operator sortOperator = OperatorFactory.getOperator(operator, catalog, orderByElements);
+		return sortOperator;
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	/***
