@@ -6,8 +6,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Lazy Singleton for Catalog
@@ -39,22 +41,40 @@ public class Catalog {
 		}
 	}
 	
+	/**
+	 * Given tableName and columnName, find out the column index in a tuple
+	 * @param tableName
+	 * @param columnName
+	 * @return index
+	 */
 	public int getIndex(String tableName, String columnName) {
 		int index = tables.get(tableName).getColumns().indexOf(columnName);
 		return index;
 	}
 	
+	/**
+	 * Given a tableName, find out the table info instance
+	 * @param tableName
+	 * @return table
+	 */
 	public TableInfo getTable(String tableName) {
 		TableInfo table = tables.get(tableName);
 		return table;
 	}
 	
-	
-	public synchronized void dropInMemoryTable(String tableName) {
-		if(!tables.containsKey(tableName)) {return;}
+	/**
+	 * Clear the in-memory table info
+	 * This method is synchronized, to keep thread safety
+	 * When SQL statement was executed, this method need to be called
+	 */
+	public synchronized void dropInMemoryTable() {
+		Iterator<Entry<String, TableInfo>> iterator = tables.entrySet().iterator();
 		
-		if(tables.get(tableName).getTablePath() == "//:inMemory") {
-		    tables.remove(tableName);
+		while(iterator.hasNext()) {
+			Map.Entry<String, TableInfo> m = iterator.next();
+			if(tables.get(m.getKey()).getInMemory()) {
+				iterator.remove();
+			}
 		}
 	}
 	

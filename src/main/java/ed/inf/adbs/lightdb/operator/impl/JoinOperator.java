@@ -21,20 +21,33 @@ public class JoinOperator extends Operator {
 	private String tableName;
 	private Tuple outerTuple;
 	
+	/**
+	 * Constructor of JoinOperator
+	 * @param leftChild: the left join table operator
+	 * @param rightChild: the right join table operator
+	 * @param catalog: catalog of database
+	 * @param exp: the join condition expression
+	 */
 	public JoinOperator(Operator leftChild, Operator rightChild, 
 			Catalog catalog, Expression exp) {
 		this.leftChild = leftChild;
 		this.rightChild = rightChild;
 		this.catalog = catalog;
-		tempTable();
+		tempTable();  // create a temporary table info in catalog
 		
 		if(exp!=null) {
+			// designed for the situation that has no join condition
+			// in this situation, return Cartesian tuple directly 
 		    this.visitor = new SelectionVisitor(catalog, exp, tableName);
 		} else {
 			this.visitor = null;
 		}
 	}
 	
+	/**
+	 * Add a temporary table info into catalog
+	 * The temporary table name should be left table + " " + right table
+	 */
 	protected void tempTable() {
 		
 		String tableName1 = leftChild.getTableName();
@@ -64,17 +77,23 @@ public class JoinOperator extends Operator {
 	@Override
 	public Tuple getNextTuple() {
 		while(outerTuple != null) {
+			// if outer tuple is not null, start inner loop
 			Tuple innerTuple;
 			while((innerTuple = rightChild.getNextTuple()) != null){
+				// inner loop produce Cartesian tuple and check whether should return
 				Tuple cartesianTuple = outerTuple.concate(innerTuple);
 				if(visitor == null) {
+					// if there is no join condition, return Cartesian
 					return cartesianTuple;
 				} else {
 				    if(visitor.check(cartesianTuple)) {
+				    	// if satisfy the condition, return
 					    return cartesianTuple;
 				    }
 				}
 			}
+			// if no Cartesian tuple satisfy the condition
+			// reset the inner loop and get next tuple for the outer loop
 			rightChild.reset();
 			outerTuple = leftChild.getNextTuple();
 		}
@@ -86,6 +105,8 @@ public class JoinOperator extends Operator {
 		this.state = true;
 		leftChild.open();
 		rightChild.open();
+		// first record a outerTuple as a start point
+		// this variable is also for recording the pointer
 		this.outerTuple = leftChild.getNextTuple();
 	}
 	

@@ -14,26 +14,44 @@ import ed.inf.adbs.lightdb.tuple.Tuple;
  *
  */
 public abstract class Operator {
+	
+	// the state of the file, true means open, false means close
 	protected boolean state = false;
+	// every operator corresponds a table
 	protected String tableName;
 	
 	public Operator() {}
 	
 	/**
-	 * Read the next line from the file and returns the next tuple
+	 * Read the next tuple and returns the tuple after being processed
 	 * @return Tuple type
 	 */
 	public abstract Tuple getNextTuple();
 	
 	/**
-	 * Close and open again 
+	 * Reset means, close and open. 
 	 */
 	public abstract void reset();
 	
+	/**
+	 * Open the corresponded file
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
 	public abstract void open() throws FileNotFoundException, IOException;
 	
+	/**
+	 * Close the corresponded file
+	 * @throws IOException
+	 */
 	public abstract void close() throws IOException;
 	
+	/**
+	 * Output the results
+	 * if output path is null, print to the screen
+	 * otherwise print to the file
+	 * @param outputPath
+	 */
 	public void dump(String outputPath) {
 		this.reset();
 		if (outputPath==null) {
@@ -63,7 +81,7 @@ public abstract class Operator {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public String getTableName() {
 		return tableName;
 	}

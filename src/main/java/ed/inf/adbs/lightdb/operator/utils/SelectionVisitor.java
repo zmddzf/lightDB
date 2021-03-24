@@ -18,6 +18,12 @@ import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.util.deparser.ExpressionDeParser;
 
+
+/**
+ * This is a class to visit the expression and check whether the expression is true.
+ * Maintain a boolean stack and a long stack to record the intermediate results.
+ * @author zmddzf
+ */
 public class SelectionVisitor extends ExpressionDeParser {
 	private Catalog catalog;
 	private Expression exp;

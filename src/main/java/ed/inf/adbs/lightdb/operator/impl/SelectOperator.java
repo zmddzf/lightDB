@@ -14,17 +14,26 @@ public class SelectOperator extends Operator {
 	private SelectionVisitor visitor;
 	private String tableName;
 	
+	/**
+	 * Constructor of the filter
+	 * @param child: the child of the filter, typically a instance of ScanOperator
+	 * @param catalog: the catalog instance
+	 * @param exp: filter expression
+	 */
 	public SelectOperator(Operator child, Catalog catalog, Expression exp) {
 		this.child = child;
+		// visitor is essential, while is used to check whether a tuple should be filted
 		this.visitor = new SelectionVisitor(catalog, exp);
 		this.setTableName(child.getTableName());
 	}
 	
+	@Override
 	public void open() throws FileNotFoundException, IOException {
 		this.state = true;
 		child.open();
 	}
 	
+	@Override
 	public void close() throws IOException {
 		if (state == true) {
 		    child.close();
@@ -32,6 +41,7 @@ public class SelectOperator extends Operator {
 		this.state = false;
 	}
 	
+	@Override
 	public void reset() {
 		try {
 			close();
@@ -51,10 +61,12 @@ public class SelectOperator extends Operator {
 		
 	}
 	
+	@Override
 	public Tuple getNextTuple() {
 		Tuple tuple;
 		while((tuple = child.getNextTuple()) != null) {
 			if(visitor.check(tuple)) {
+				// check the tuple, if true, return
 				return tuple;
 			}
 	    }

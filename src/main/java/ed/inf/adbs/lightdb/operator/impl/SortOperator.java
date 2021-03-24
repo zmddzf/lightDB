@@ -16,11 +16,17 @@ import net.sf.jsqlparser.statement.select.OrderByElement;
 public class SortOperator extends Operator {
 	
 	private Operator child;
-	private List<Integer> indexList = new ArrayList<Integer>();
+	private List<Integer> indexList = new ArrayList<Integer>(); // indexList contains the order-by columns' index
 	private List<Tuple<Integer>> tupleList;
 	private Catalog catalog;
 	private int pointer;
 	
+	/**
+	 * Constructor
+	 * @param child
+	 * @param catalog
+	 * @param orderByElements
+	 */
 	public SortOperator(Operator child, Catalog catalog, List<OrderByElement> orderByElements) {
 		this.child = child;
 		this.tableName = child.getTableName();
@@ -28,6 +34,9 @@ public class SortOperator extends Operator {
 
 		
 		if(orderByElements == null) {
+			// if there is no orderBy elements
+			// use all the columns to do sort
+			// this is designed for distinct operator
 			int length = catalog.getTable(tableName).getColumns().size();
 			for(int i=0; i< length; i++) {
 				indexList.add(i);
@@ -40,6 +49,11 @@ public class SortOperator extends Operator {
 	}
 	
 
+	/**
+	 * Getting next tuple need to maintain a pointer
+	 * Every time get a tuple, pointer add one
+	 * Check the tuple list size to decide return null or not
+	 */
 	@Override
 	public Tuple getNextTuple() {
 		// TODO Auto-generated method stub
@@ -64,12 +78,18 @@ public class SortOperator extends Operator {
 	}
 
 	@Override
+	/**
+	 * Sort is a block operator
+	 * It needs to read all the data from the child
+	 * and sort them all.
+	 */
 	public void open() throws FileNotFoundException, IOException {
 		// TODO Auto-generated method stub
 		child.open();
 		state = true;
 		tupleList = new ArrayList<Tuple<Integer>>();
-		
+		// read all the tuple into a tupleList
+		// all the tuples are in the main memory
 		Tuple<Integer> tuple;
 		while((tuple = child.getNextTuple())!=null) {			
 			tupleList.add(tuple);
@@ -87,7 +107,6 @@ public class SortOperator extends Operator {
 		}
 		this.state = false;		
 		pointer = 0;
-		//tupleList = new ArrayList<Tuple<Integer>>();
 	}
 
 }

@@ -2,6 +2,13 @@ package ed.inf.adbs.lightdb.tuple;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * This is a tuple class.
+ * The values in tuple is not changeable.
+ * @author zmddzf
+ * @param <T>: the type of the Tuple.
+ */
 public class Tuple<T> {
 	// final type of list
     private final List<T> values;
@@ -15,8 +22,7 @@ public class Tuple<T> {
     }
     
     /**
-     * Change tuple to String
-     * preparing for output
+     * Change tuple to String.
      */
     public String toString() {
     	String str = new String();
@@ -28,20 +34,34 @@ public class Tuple<T> {
     	return str;
     }
     
+    /**
+     * Create a new List and return.
+     * @return valueList
+     */
     public List toList() {
-    	List values_list = new ArrayList();
+    	List valuesList = new ArrayList();
     	for(T item: values) {
-    		values_list.add(item);
+    		valuesList.add(item);
     	}
-		return values_list;
+		return valuesList;
     	
     }
     
+    /**
+     * Get the value corresponds to the index
+     * @param index
+     * @return v
+     */
     public T get(int index) {
     	T v = values.get(index);
 		return v;
     }
     
+    /**
+     * Concat two tuple
+     * @param tuple
+     * @return newTuple
+     */
     public Tuple<T> concate(Tuple<T> tuple) {
     	Tuple<T> newTuple;
     	List<T> list = this.toList();
@@ -53,6 +73,11 @@ public class Tuple<T> {
 		return newTuple;
     }
     
+    /**
+     * Compare all the values in two tuple
+     * @param tuple
+     * @return boolean type
+     */
     public boolean compareValues(Tuple tuple) {
     	if(tuple == null) {return false;}
     	

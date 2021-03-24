@@ -34,6 +34,10 @@ public class PlanBuilder {
 		this.catalog = Catalog.getInstance(dbPath);
 	}
 	
+	public void dropInMemory() {
+		catalog.dropInMemoryTable();
+	}
+	
 	public List<String> handleAlias(List<String> tableOrder) {
 		List<String> newTableOrder = new ArrayList<String>();
 		

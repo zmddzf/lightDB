@@ -41,6 +41,7 @@ public class ScanOperator extends Operator {
 	/**
 	 * Open the file and set the state true
 	 */
+	@Override
 	public void open() throws FileNotFoundException, IOException {
     	FileReader f = new FileReader(table.getTablePath());
     	this.data = new BufferedReader(f);
@@ -50,6 +51,7 @@ public class ScanOperator extends Operator {
 	/**
 	 * Close the file and set the state false
 	 */
+	@Override
 	public void close() throws IOException {
 		if (this.state == true) {
 			this.data.close();
@@ -60,6 +62,7 @@ public class ScanOperator extends Operator {
 	/**
 	 * Close the file and then reopen it
 	 */
+	@Override
 	public void reset() {
 		if (this.state == true) {
 			try {
@@ -77,16 +80,18 @@ public class ScanOperator extends Operator {
 		}
 	}
 	
-	
 	/**
-	 * 
+	 * Read line for the data file
+	 * return tuple
 	 */
+	@Override
 	public Tuple getNextTuple() {
 		try {
 			String line = this.data.readLine();
 			if (line != null) {
+				// split the String to array 
 				String[] str_list = line.split(",");
-				List<Integer> values = new ArrayList();
+				List<Integer> values = new ArrayList<Integer>();
 				for (int i = 0; i < str_list.length; i++) {
 					values.add(Integer.valueOf(str_list[i]));
 				}
