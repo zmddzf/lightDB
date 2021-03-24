@@ -10,6 +10,7 @@ public class TableInfo {
 	private String tableName;
 	private String tablePath;
 	private List<String> columns;
+	private boolean inMemory = false;
 
 	public List<String> getColumns() {
 		return columns;
@@ -33,6 +34,14 @@ public class TableInfo {
 
 	public void setTablePath(String tablePath) {
 		this.tablePath = tablePath;
+	}
+
+	public boolean isInMemory() {
+		return inMemory;
+	}
+
+	public void setInMemory(boolean inMemory) {
+		this.inMemory = inMemory;
 	}
 
 }

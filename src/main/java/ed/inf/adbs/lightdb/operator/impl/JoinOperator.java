@@ -44,7 +44,7 @@ public class JoinOperator extends Operator {
 		
 		TableInfo tableInfo = new TableInfo();
 		tableInfo.setTableName(tableName);
-		
+				
 		List<String> columns1 = catalog.getTable(tableName1).getColumns();
 		List<String> columns2 = catalog.getTable(tableName2).getColumns();
 		
@@ -55,6 +55,7 @@ public class JoinOperator extends Operator {
 
 		tableInfo.setColumns(columns);
 		tableInfo.setTablePath("//:inMemory");
+		tableInfo.setInMemory(true);
 		
 		catalog.tables.put(tableName, tableInfo);
 	}
@@ -68,7 +69,7 @@ public class JoinOperator extends Operator {
 				Tuple cartesianTuple = outerTuple.concate(innerTuple);
 				if(visitor == null) {
 					return cartesianTuple;
-				} else {				
+				} else {
 				    if(visitor.check(cartesianTuple)) {
 					    return cartesianTuple;
 				    }
@@ -100,15 +101,13 @@ public class JoinOperator extends Operator {
 	@Override
 	public void reset() {
 		try {
-			leftChild.close();
-			rightChild.close();
+			close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		try {
-			leftChild.open();
-			rightChild.open();
+			open();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -125,6 +124,14 @@ public class JoinOperator extends Operator {
 
 	public void setTableNames(String tableName) {
 		this.tableName = tableName;
+	}
+	
+	public Operator getLeftChild() {
+		return leftChild;
+	}
+	
+	public Operator getRightChild() {
+		return rightChild;
 	}
 	
 }

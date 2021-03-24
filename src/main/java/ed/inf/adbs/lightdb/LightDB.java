@@ -1,6 +1,11 @@
 package ed.inf.adbs.lightdb;
 
 import java.io.FileReader;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
@@ -14,6 +19,7 @@ import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
@@ -56,12 +62,20 @@ public class LightDB {
 	public static void parsingExample(String filename) {
 		try {
 			//Statement statement = CCJSqlParserUtil.parse(new FileReader(filename));
-            Statement statement = CCJSqlParserUtil.parse("SELECT * FROM Boats, T WHERE T.D=Boats.E and T.A=3");
+            Statement statement = CCJSqlParserUtil.parse(
+            		"SELECT * FROM Boats B, T t WHERE T.D=Boats.E and T.A=3 order by T.A");
 			if (statement != null) {
 				System.out.println("Read statement: " + statement);
 				Select select = (Select) statement;
 				PlainSelect plain = (PlainSelect) select.getSelectBody();
 				System.out.println(plain.getFromItem());
+				
+				System.out.println("sssss:"+plain.getOrderByElements());
+				
+				
+				List<OrderByElement> orderByElements = plain.getOrderByElements();
+				System.out.println(orderByElements.get(0).toString());
+				
 								
 				List<Join> joins = plain.getJoins();
 				System.out.println(plain.getFromItem().getClass());
@@ -111,6 +125,16 @@ public class LightDB {
 				System.out.println(exp1.toString().contains("T."));
 	    	    AndExpression and = new AndExpression();
 	    	    System.out.println(and);
+	    	    
+	    	    
+	    	    List<String> list = new ArrayList<String>();
+	    	    
+	    	    ArrayList<Integer> listA = new ArrayList(Arrays.asList(1,2,3,4));
+	    	    ArrayList<Integer> listB = new ArrayList(Arrays.asList(1,2,3,4));
+	    	    System.out.println(listA.equals(listB));
+	    	    
+	    	    System.out.println(plain.getDistinct());
+	    	    
 			}
 		} catch (Exception e) {
 			System.err.println("Exception occurred during parsing");

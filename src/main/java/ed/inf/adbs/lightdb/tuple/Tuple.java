@@ -51,6 +51,13 @@ public class Tuple<T> {
     	newTuple = new Tuple<T>(list);
     	
 		return newTuple;
+    }
+    
+    public boolean compareValues(Tuple tuple) {
+    	if(tuple == null) {return false;}
     	
+    	if(tuple.toList().equals(values)) {return true;}
+    	
+    	return false;
     }
 }

@@ -34,13 +34,13 @@ public class SelectOperator extends Operator {
 	
 	public void reset() {
 		try {
-			child.close();
+			close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		try {
-			child.open();
+			open();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

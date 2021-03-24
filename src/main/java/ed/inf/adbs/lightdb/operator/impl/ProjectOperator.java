@@ -22,7 +22,26 @@ public class ProjectOperator extends Operator {
 		this.child = child;
 		this.selectItems = selectItems;
 		this.catalog = catalog;
-		this.setTableName(child.getTableName());
+		tempTable();
+	}
+	
+	private void tempTable() {
+		String tableName = child.getTableName() + "_PROJ";
+		this.setTableName(tableName);
+		
+		TableInfo tableInfo = new TableInfo();
+		tableInfo.setTableName(tableName);
+		List<String> columns = new ArrayList();
+		for(SelectItem selectItem: selectItems) {
+			columns.add(selectItem.toString());
+		}
+		
+		tableInfo.setColumns(columns);
+		tableInfo.setTablePath("//:inMemory");
+		tableInfo.setInMemory(true);
+		
+		catalog.tables.put(tableName, tableInfo);
+		
 	}
 	
 	@Override
