@@ -7,10 +7,10 @@ public class TableInfo {
 	 * Table class to store table information 
 	 */
 	
-	private String tableName;
-	private String tablePath;
-	private List<String> columns;
-	private boolean inMemory = false;
+	private String tableName;  // table name
+	private String tablePath;  // the path table stored in
+	private List<String> columns;  // list of column names
+	private boolean inMemory = false;  // mark the temporary table during the operating process 
 
 	public List<String> getColumns() {
 		return columns;
@@ -36,7 +36,7 @@ public class TableInfo {
 		this.tablePath = tablePath;
 	}
 
-	public boolean isInMemory() {
+	public boolean getInMemory() {
 		return inMemory;
 	}
 

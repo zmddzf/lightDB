@@ -18,13 +18,24 @@ public class ProjectOperator extends Operator {
 	private Catalog catalog;
 	private String tableName;
 	
+	/**
+	 * Constructor of ProjectOperator
+	 * @param child
+	 * @param catalog
+	 * @param selectItems: a list of select items
+	 */
 	public ProjectOperator(Operator child, Catalog catalog, List<SelectItem> selectItems) {
 		this.child = child;
 		this.selectItems = selectItems;
 		this.catalog = catalog;
-		tempTable();
+		tempTable();  // create a temporary table info after project
 	}
 	
+	/**
+	 * Create a temporary table info
+	 * The table name should be child table name + "_PROJ"
+	 * The table info is stored in catalog
+	 */
 	private void tempTable() {
 		String tableName = child.getTableName() + "_PROJ";
 		this.setTableName(tableName);
@@ -37,7 +48,11 @@ public class ProjectOperator extends Operator {
 		}
 		
 		tableInfo.setColumns(columns);
+		
+		// the table path is not actual exist
+		// so use "//:inMemory" to mark it
 		tableInfo.setTablePath("//:inMemory");
+		// since it is a in memory table, set in memory mark as true
 		tableInfo.setInMemory(true);
 		
 		catalog.tables.put(tableName, tableInfo);
@@ -80,23 +95,27 @@ public class ProjectOperator extends Operator {
 	
 	@Override
 	public Tuple getNextTuple() {
-		Tuple<?> childTuple;
+		Tuple<Integer> childTuple;
 		Tuple<Integer> tuple;
 		
 		List<Integer> list = new ArrayList<Integer>();
-		childTuple = child.getNextTuple();
+		childTuple = child.getNextTuple();  // read tuple from child
 		
 		if(childTuple == null) {
+			// if child tuple is null, return null directly
 			return null;
 		}
 		
+		// get child tuple list
 		List<Integer> childList = childTuple.toList();
 		
 		for(SelectItem item: selectItems) {
 			if(item instanceof AllColumns) {
+				// if all columns, return childTuple directly
 				return childTuple;
 			}
 			
+			// get index of the projected column
 			int index = catalog.getIndex(tableName, item.toString());
 			list.add(childList.get(index));
 		}

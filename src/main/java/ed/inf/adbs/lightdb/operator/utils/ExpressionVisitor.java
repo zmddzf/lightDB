@@ -26,8 +26,8 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.util.deparser.ExpressionDeParser;
 
 /**
+ * This is a class for grouping the where clause
  * @author zmddzf
- *
  */
 public class ExpressionVisitor extends ExpressionDeParser {
 	
@@ -35,6 +35,11 @@ public class ExpressionVisitor extends ExpressionDeParser {
 	private HashMap<String, ArrayList<Expression>> expMap;
 	private List<String> tableOrder;
 	
+	/**
+	 * Constructor
+	 * @param exp: a where clause expression
+	 * @param tableOrder: the from clause table order
+	 */
 	public ExpressionVisitor(Expression exp, List<String> tableOrder) {
 		this.exp = exp;
 		this.expMap = new HashMap<String, ArrayList<Expression>>();
@@ -42,7 +47,11 @@ public class ExpressionVisitor extends ExpressionDeParser {
 		this.buildExpMap();
 	}
 	
-	
+	/**
+	 * Build the expression Map
+	 * A expMap is like {tableName=List<Expression>}
+	 * The list contains all the expressions that correspond to table
+	 */
 	private void buildExpMap() {
 		String tableName = tableOrder.get(0);
 		expMap.put(tableName, new ArrayList<Expression>());
