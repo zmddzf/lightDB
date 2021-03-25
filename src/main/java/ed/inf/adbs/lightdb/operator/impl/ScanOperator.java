@@ -21,6 +21,12 @@ import ed.inf.adbs.lightdb.tuple.Tuple;
  * @author zmddzf
  *
  */
+
+/**
+ * Scan operator is designed to read data from data files.
+ * @author zmddzf
+ *
+ */
 public class ScanOperator extends Operator {
 	private TableInfo table;
 	private BufferedReader data;

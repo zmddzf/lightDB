@@ -9,6 +9,13 @@ import ed.inf.adbs.lightdb.operator.utils.SelectionVisitor;
 import ed.inf.adbs.lightdb.tuple.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 
+/**
+ * Filter operator.
+ * If the tuple does not satisfies the predicate condition, drop it,
+ * get next tuple from child until get one tuple satisfies and return it.
+ * @author zmddzf
+ *
+ */
 public class SelectOperator extends Operator {
 	private Operator child;
 	private SelectionVisitor visitor;
@@ -61,6 +68,10 @@ public class SelectOperator extends Operator {
 		
 	}
 	
+	/**
+	 *  If the tuple does not satisfies the predicate condition, drop it,
+	 *  get next tuple from child until get one tuple satisfies and return it.
+	 */
 	@Override
 	public Tuple getNextTuple() {
 		Tuple tuple;

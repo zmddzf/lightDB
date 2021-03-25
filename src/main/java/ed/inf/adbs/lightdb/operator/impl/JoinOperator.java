@@ -13,6 +13,19 @@ import ed.inf.adbs.lightdb.operator.utils.SelectionVisitor;
 import ed.inf.adbs.lightdb.tuple.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 
+/**
+ * The join operation is rely on the join conditions. 
+ * If we want to get `T1` and `T2`s' joint condition expression, 
+ * we can use the `getExpression` method in `ExpressionVisitor` 
+ * and take out the expression in the return HashMap, 
+ * where the corresponding key is `"T1 T2"`. 
+ * When the `JoinOperator` is opened, 
+ * it will read one tuple `outerTuple` from his left child, 
+ * which is the start point of outer loop. 
+ * The inner loop is for reading tuple from the right child.
+ * @author zmddzf
+ *
+ */
 public class JoinOperator extends Operator {
 	private Operator leftChild;
 	private Operator rightChild;
@@ -73,7 +86,15 @@ public class JoinOperator extends Operator {
 		catalog.tables.put(tableName, tableInfo);
 	}
 	
-
+	/**
+	 * When the `JoinOperator` is opened, it will read one tuple `outerTuple` from his left child, 
+	 * which is the start point of outer loop. The inner loop is for reading tuple from the right child. 
+	 * While the `outerTuple` is not `null`, the inner loop will start. 
+	 * Inner loop first glue `outerTuple` and `innerTuple` together, and check whether it satisfies the
+	 * join condition. If it does, return the glued tuple, otherwise, keep looping.  
+	 * When the inner loop is finished, but the outer loop is not finished, 
+	 * reset the right child and read next `outerTuple`.
+	 */
 	@Override
 	public Tuple getNextTuple() {
 		while(outerTuple != null) {

@@ -33,6 +33,12 @@ public class DuplicateEliminationOperator extends Operator {
 	// the sorted key index
 	private List<Integer> indexList = new ArrayList<Integer>();
 	
+	/**
+	 * Constructor
+	 * @param child: the child of this operator.
+	 * @param catalog: database catalog.
+	 * @param orderByElements: the columns that are sorted.
+	 */
 	public DuplicateEliminationOperator(Operator child, Catalog catalog, 
 			List<OrderByElement> orderByElements) {
 		this.child = child;
@@ -52,7 +58,9 @@ public class DuplicateEliminationOperator extends Operator {
 	    }
 	}
 	
-	
+	/**
+	 * Get the next non-duplicated tuple.
+	 */
 	@Override
 	public Tuple getNextTuple() {
 		// TODO Auto-generated method stub

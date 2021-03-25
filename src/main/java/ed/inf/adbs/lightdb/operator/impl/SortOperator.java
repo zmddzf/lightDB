@@ -13,6 +13,11 @@ import ed.inf.adbs.lightdb.tuple.Tuple;
 import ed.inf.adbs.lightdb.tuple.TupleComparator;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
+/**
+ * A block sort operator, when it is opened, read all the tuples and sort in memory.
+ * @author zmddzf
+ *
+ */
 public class SortOperator extends Operator {
 	
 	private Operator child;
@@ -23,9 +28,9 @@ public class SortOperator extends Operator {
 	
 	/**
 	 * Constructor
-	 * @param child
-	 * @param catalog
-	 * @param orderByElements
+	 * @param child: The child of sort operator.
+	 * @param catalog: database catalog.
+	 * @param orderByElements: the sort key.
 	 */
 	public SortOperator(Operator child, Catalog catalog, List<OrderByElement> orderByElements) {
 		this.child = child;
@@ -94,8 +99,6 @@ public class SortOperator extends Operator {
 		while((tuple = child.getNextTuple())!=null) {			
 			tupleList.add(tuple);
 		}
-		
-		
 		Collections.sort(tupleList, new TupleComparator(indexList));
 	}
 

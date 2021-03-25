@@ -12,6 +12,12 @@ import ed.inf.adbs.lightdb.tuple.Tuple;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
+
+/**
+ * Project Operator projects the tuple to a new tuple according to the select columns
+ * @author zmddzf
+ *
+ */
 public class ProjectOperator extends Operator {
 	private Operator child;
 	private List<SelectItem> selectItems;
@@ -19,10 +25,10 @@ public class ProjectOperator extends Operator {
 	private String tableName;
 	
 	/**
-	 * Constructor of ProjectOperator
-	 * @param child
-	 * @param catalog
-	 * @param selectItems: a list of select items
+	 * Constructor of ProjectOperator.
+	 * @param child: the child of this operator.
+	 * @param catalog: the database catalog.
+	 * @param selectItems: a list of select items.
 	 */
 	public ProjectOperator(Operator child, Catalog catalog, List<SelectItem> selectItems) {
 		this.child = child;
@@ -93,6 +99,9 @@ public class ProjectOperator extends Operator {
 		
 	}
 	
+	/**
+	 * Read tuple from child and project it to the required form.
+	 */
 	@Override
 	public Tuple getNextTuple() {
 		Tuple<Integer> childTuple;
@@ -116,7 +125,7 @@ public class ProjectOperator extends Operator {
 			}
 			
 			// get index of the projected column
-			int index = catalog.getIndex(tableName, item.toString());
+			int index = catalog.getIndex(child.getTableName(), item.toString());
 			list.add(childList.get(index));
 		}
 		

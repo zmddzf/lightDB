@@ -2,10 +2,13 @@ package ed.inf.adbs.lightdb.catalog;
 
 import java.util.List;
 
+/**
+ * Table class to store table information 
+ * @author zmddzf
+ *
+ */
 public class TableInfo {
-	/**
-	 * Table class to store table information 
-	 */
+
 	
 	private String tableName;  // table name
 	private String tablePath;  // the path table stored in

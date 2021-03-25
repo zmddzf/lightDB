@@ -5,6 +5,7 @@ package ed.inf.adbs.lightdb.operator.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,13 +27,13 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.util.deparser.ExpressionDeParser;
 
 /**
- * This is a class for grouping the where clause
+ * This is a class for extract conditions from the where clause
  * @author zmddzf
  */
 public class ExpressionVisitor extends ExpressionDeParser {
 	
 	private Expression exp;
-	private HashMap<String, ArrayList<Expression>> expMap;
+	private LinkedHashMap<String, ArrayList<Expression>> expMap;
 	private List<String> tableOrder;
 	
 	/**
@@ -42,7 +43,7 @@ public class ExpressionVisitor extends ExpressionDeParser {
 	 */
 	public ExpressionVisitor(Expression exp, List<String> tableOrder) {
 		this.exp = exp;
-		this.expMap = new HashMap<String, ArrayList<Expression>>();
+		this.expMap = new LinkedHashMap<String, ArrayList<Expression>>();
 		this.setTableOrder((ArrayList<String>) tableOrder);
 		this.buildExpMap();
 	}
@@ -63,6 +64,13 @@ public class ExpressionVisitor extends ExpressionDeParser {
 	}
 	
 	
+	/**
+	 * This designed for put expressions into the corresponded table.
+	 * If the table name is not in expMap, create a new table name in the expMap.
+	 * This is especially designed for join condition.
+	 * If the table name has already existed, put it in directly.
+	 * @param operator: The comparison operator interface type.
+	 */
 	private synchronized void putExp(ComparisonOperator operator) {
 		String left = operator.getLeftExpression().toString();
 		String right = operator.getRightExpression().toString();
@@ -138,7 +146,14 @@ public class ExpressionVisitor extends ExpressionDeParser {
     	putExp(equalsTo);
     }
     
+    /**
+     * This function is to return the expression for each table.
+     * One table will get one expression.
+     * The return hashMap is {tableName=expression}.
+     * @return: hashMap
+     */
     public HashMap<String, Expression> getExpressions() {
+    	
     	exp.accept(this);
     	HashMap<String, Expression> hashMap = new HashMap<String, Expression>();
     	
@@ -160,6 +175,7 @@ public class ExpressionVisitor extends ExpressionDeParser {
         			and.setRightExpression(expList.get(i));
         		}
     	    	hashMap.put(entry.getKey(), and);
+    	    	System.out.println(expMap.keySet());
     	    }
     	}
     	

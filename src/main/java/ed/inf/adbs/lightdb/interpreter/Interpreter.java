@@ -8,6 +8,13 @@ import java.io.IOException;
 import ed.inf.adbs.lightdb.operator.Operator;
 import net.sf.jsqlparser.JSQLParserException;
 
+/**
+ * Parse and interpret SQL statement
+ * This is a top-level class that reads the statement from the query file,
+ * and parse and execute it. 
+ * @author zmddzf
+ *
+ */
 public class Interpreter {
 	private String inputPath;  // the path of input SQL
 	private String outputPath;  // the path of output csv file
