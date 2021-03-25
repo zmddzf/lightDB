@@ -13,14 +13,27 @@ public class PlanBuilderTest {
 	String sql1 = "select Sailors.A, Reserves.G"
 			+ " from Reserves, Sailors "
 			+ "where Sailors.A < Reserves.G and "
-			+ "Reserves.G <= 5"
+			+ "Reserves.G <= 3"
 			+ "and 1!=2";
 	
 	String sql2 = "select * from Reserves R, Sailors S";
-	String sql3 = "select S.A, R.G from Reserves R, Sailors S, Boats B where S.A < R.G "
-			+ "and B.D < S.B order by S.A, R.G";
+	String sql3 = "select R.G, R.G, S.A from Reserves R, Sailors S, Boats B where S.A < R.G "
+			+ "and B.D < S.B order by S.A";
 	
-	String sql4 = "select distinct S1.A, S2.A, S2.B from Sailors S1, Sailors S2 where S1.A < S2.A";
+	String sql4 = "SELECT DISTINCT Reserves.G, s.C, s2.A, b0.D, s2.B, b0.E, b0.F, b1.D, b1.E, b1.F,Reserves.H\r\n" + 
+			"FROM Reserves," + 
+			"     Sailors s," + 
+			"     Sailors s2," + 
+			"     Boats b0," + 
+			"     Boats b1 " + 
+			"WHERE Reserves.H >= 102" + 
+			"  and 100 = s.B" + 
+			"  and s2.A = 6" + 
+			"  and Reserves.H < 104" + 
+			"  and s.A = Reserves.G" + 
+			"  and s2.A<s2.B" + 
+			"  and b1.D<103" + 
+			"  ORDER BY b0.E,b0.F,b0.D, b1.F";
 	
 	PlanBuilder planBuilder = new PlanBuilder("./samples/db");
 	

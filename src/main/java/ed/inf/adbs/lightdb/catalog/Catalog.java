@@ -21,13 +21,13 @@ public class Catalog {
 	
 	// ensure every thread read the instance from the main memory 
 	private volatile static Catalog instance = null;
-	private String dbPath;
+	public String dbPath;
 	public Map<String, TableInfo> tables;
 	
 	/**
 	 * Private constructor 
 	 * avoid being initialized out of the class
-	 * @param dbPath
+	 * @param dbPath: database path
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
@@ -43,9 +43,9 @@ public class Catalog {
 	
 	/**
 	 * Given tableName and columnName, find out the column index in a tuple
-	 * @param tableName
-	 * @param columnName
-	 * @return index
+	 * @param tableName: table name
+	 * @param columnName: column name
+	 * @return index of the column
 	 */
 	public int getIndex(String tableName, String columnName) {
 		int index = tables.get(tableName).getColumns().indexOf(columnName);
@@ -54,8 +54,8 @@ public class Catalog {
 	
 	/**
 	 * Given a tableName, find out the table info instance
-	 * @param tableName
-	 * @return table
+	 * @param tableName: table name
+	 * @return table: tableInfo instance
 	 */
 	public TableInfo getTable(String tableName) {
 		TableInfo table = tables.get(tableName);
@@ -100,7 +100,7 @@ public class Catalog {
     
     /**
      * Read tables info and reture the tables hashmap
-     * @return
+     * @return tables hashmap
      * @throws FileNotFoundException
      * @throws IOException
      */

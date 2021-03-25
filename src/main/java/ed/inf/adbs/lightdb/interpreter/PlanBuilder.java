@@ -27,17 +27,36 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
+/**
+ * This is a Class to build execution plan.
+ * This class contains a method handleAlias to deal with alias.
+ * The method buildTree is to build plan for the given SQL statement.
+ * @author zmddzf
+ *
+ */
 public class PlanBuilder {
 	private Catalog catalog;
 	
+	/**
+	 * Constructor
+	 * @param dbPath: The database path.
+	 */
 	public PlanBuilder(String dbPath) {
 		this.catalog = Catalog.getInstance(dbPath);
 	}
 	
+	/**
+	 * Drop the table info that created in the execution process.
+	 */
 	public void dropInMemory() {
 		catalog.dropInMemoryTable();
 	}
 	
+	/**
+	 * Deal with the alias of table.
+	 * @param tableOrder: a list contains String like "T alias"
+	 * @return a list of table alias
+	 */
 	public List<String> handleAlias(List<String> tableOrder) {
 		List<String> newTableOrder = new ArrayList<String>();
 		
@@ -75,7 +94,12 @@ public class PlanBuilder {
 		return newTableOrder;
 	}
 	
-	
+	/**
+	 * Build query plan.
+	 * @param sql: String type, the SQL statement.
+	 * @return Operator type, a plan tree.
+	 * @throws JSQLParserException
+	 */
 	public Operator buildTree(String sql) throws JSQLParserException {
 		PlainSelect plain = parseSql(sql);
 		
@@ -122,7 +146,11 @@ public class PlanBuilder {
 	}
 	
 	
-	
+	/**
+	 * Create scanOperator list for all tables from "from" clause.
+	 * @param tableOrder: the table name list.
+	 * @return a list of scanOperator instances.
+	 */
 	public List<Operator> createScanList(List<String> tableOrder) {
 		// create scan operator
 		List<Operator> scanList = new ArrayList<Operator>();
@@ -134,7 +162,12 @@ public class PlanBuilder {
 		return scanList;
 	}
 	
-	
+	/**
+	 * Create the filter condition operator list (SelectOperator).
+	 * @param expMap: HashMap, contains all conditions.
+	 * @param scanList: list of scanOperator instances.
+	 * @return list of filter operators.
+	 */
 	public List<Operator> createFilterList(HashMap<String, Expression> expMap,
 			List<Operator> scanList) {
 		
@@ -177,7 +210,12 @@ public class PlanBuilder {
 		
 	}
 	
-	
+	/**
+	 * Create the join operator.
+	 * @param expMap: HashMap, contains all conditions, including join conditions.
+	 * @param filterList: list of filter operators.
+	 * @return a join operator.
+	 */
 	public Operator createJoinOperator(HashMap<String, Expression> expMap, 
 			List<Operator> filterList) {
 		Operator operator;  // the operator that after join
@@ -207,6 +245,12 @@ public class PlanBuilder {
 	}
 	
 	
+	/**
+	 * Create a project operator.
+	 * @param selectItems: list of SelectItem type instances, decides which columns should be remain.
+	 * @param operator: the child operator.
+	 * @return a project operator.
+	 */
 	public Operator createProjectOperator(List<SelectItem> selectItems, Operator operator) {
 		if(selectItems == null) {
 			return operator;
@@ -216,7 +260,12 @@ public class PlanBuilder {
 	}
 	
 	
-	
+	/**
+	 * Create sort operator.
+	 * @param orderByElements: list of the order by clause columns.
+	 * @param operator: child operator.
+	 * @return sort operator.
+	 */
 	public Operator createSortOperator(List<OrderByElement> orderByElements, 
 			Operator operator) {
 		if(orderByElements == null) {
@@ -227,17 +276,6 @@ public class PlanBuilder {
 		return sortOperator;
 		
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	
@@ -280,6 +318,11 @@ public class PlanBuilder {
 		return tables;
 	}
 	
+	/**
+	 * Find the select columns.
+	 * @param plain: plain form statement.
+	 * @return list of select items.
+	 */
 	public List<SelectItem> findSelectItems(PlainSelect plain){
 		List<SelectItem> selectItems = plain.getSelectItems();
 		if(selectItems.size()==1 && selectItems.get(0) instanceof AllColumns) {
@@ -291,6 +334,12 @@ public class PlanBuilder {
 		return selectItems;
 	}
 	
+	/**
+	 * Get the map that contains conditions for all tables and joint tables.
+	 * @param plain: plain for SQL statement.
+	 * @param tableOrder: the join order list.
+	 * @return a hashMap that contains all conditions.
+	 */
 	public HashMap<String, Expression> findWhereClause(PlainSelect plain, List<String> tableOrder){
 		Expression whereClause = plain.getWhere();
 		if (whereClause == null) {

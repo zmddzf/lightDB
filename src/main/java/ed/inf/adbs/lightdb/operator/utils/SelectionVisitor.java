@@ -33,11 +33,22 @@ public class SelectionVisitor extends ExpressionDeParser {
 	private Stack<Boolean> boolStack = new Stack<Boolean>();
 	private Stack<Long> longStack = new Stack<Long>();
 	
+	/**
+	 * Constructor without the table name.
+	 * @param catalog: database catalog.
+	 * @param exp: the expression that extracted from where clause.
+	 */
 	public SelectionVisitor(Catalog catalog, Expression exp) {
 		this.catalog = catalog;
 		this.exp = exp;
 	}
 	
+	/**
+	 * Constructor with table name.
+	 * @param catalog: database catalog.
+	 * @param exp: the expression that extracted from where clause.
+	 * @param tableName: table name.
+	 */
 	public SelectionVisitor(Catalog catalog, Expression exp, String tableNames) {
 		this.catalog = catalog;
 		this.exp = exp;
@@ -45,6 +56,10 @@ public class SelectionVisitor extends ExpressionDeParser {
 	}
 	
 	
+	/**
+	 * Pop two boolean values from boolStack and do and operation.
+	 * Then push the result back again.
+	 */
     @Override		
 	public void visit(AndExpression andExpression) {
 		super.visit(andExpression);
@@ -53,6 +68,9 @@ public class SelectionVisitor extends ExpressionDeParser {
 		boolStack.push(left & right);
 	}
     
+    /**
+     * When get a long value, push it into the longStack.
+     */
     @Override
     public void visit(LongValue longValue) {    	
     	super.visit(longValue);
@@ -60,6 +78,9 @@ public class SelectionVisitor extends ExpressionDeParser {
     	longStack.push(value);
     }
     
+    /**
+     * When get a column, find the corresponding value and push into longStack.
+     */
     @Override
     public void visit(Column column) {
     	super.visit(column);
@@ -74,6 +95,10 @@ public class SelectionVisitor extends ExpressionDeParser {
     	longStack.push(value);
     }
     
+    /**
+     * When get a greaterThan operator, pop two values from longStack,
+     * compare them and push back to boolStack.
+     */
     @Override
     public void visit(GreaterThan greaterThan) {
     	super.visit(greaterThan);
@@ -83,6 +108,10 @@ public class SelectionVisitor extends ExpressionDeParser {
     	boolStack.push(e);
     }
     
+    /**
+     * When get a minorThan operator, pop two values from longStack,
+     * compare them and push back to boolStack.
+     */
     @Override
     public void visit(MinorThan minorThan) {
     	super.visit(minorThan);
@@ -93,6 +122,10 @@ public class SelectionVisitor extends ExpressionDeParser {
     	
     }
     
+    /**
+     * When get a notEqualsTo operator, pop two values from longStack,
+     * compare them and push back to boolStack.
+     */
     public void visit(NotEqualsTo notEqualsTo) {
     	super.visit(notEqualsTo);
     	long value1 = longStack.pop();
@@ -101,6 +134,10 @@ public class SelectionVisitor extends ExpressionDeParser {
     	boolStack.push(e);
     }
     
+    /**
+     * When get a greaterThanEquals operator, pop two values from longStack,
+     * compare them and push back to boolStack.
+     */
     public void visit(GreaterThanEquals greaterThanEquals) {
     	super.visit(greaterThanEquals);
     	long value1 = longStack.pop();
@@ -110,6 +147,10 @@ public class SelectionVisitor extends ExpressionDeParser {
     	
     }
     
+    /**
+     * When get a minorThanEquals operator, pop two values from longStack,
+     * compare them and push back to boolStack.
+     */
     public void visit(MinorThanEquals minorThanEquals) {
     	super.visit(minorThanEquals);
 
@@ -119,6 +160,11 @@ public class SelectionVisitor extends ExpressionDeParser {
     	boolStack.push(e);
     }
     
+    
+    /**
+     * When get a equalsTo operator, pop two values from longStack,
+     * compare them and push back to boolStack.
+     */
     @Override
     public void visit(EqualsTo equalsTo) {
     	super.visit(equalsTo);
