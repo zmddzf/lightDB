@@ -1,6 +1,5 @@
 # LightDB
-> **Student Number:** S2053346
->
+
 >  This is a README file for LightDB, which is a simple interpreter for SQL statement.
 
 ********
